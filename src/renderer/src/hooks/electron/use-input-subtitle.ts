@@ -1,10 +1,10 @@
 import { ChangeEvent, KeyboardEvent } from 'react';
 import { useChatHistory } from '@/context/chat-history-context';
-import { useVAD } from '@/context/vad-context';
-import { useMicToggle } from '@/hooks/utils/use-mic-toggle';
+// import { useVAD } from '@/context/vad-context';
+// import { useMicToggle } from '@/hooks/utils/use-mic-toggle';
 import { useTextInput } from '@/hooks/footer/use-text-input';
 import { useAiState, AiStateEnum } from '@/context/ai-state-context';
-import { useInterrupt } from '@/hooks/utils/use-interrupt';
+// import { useInterrupt } from '@/hooks/utils/use-interrupt';
 
 export function useInputSubtitle() {
   const {
@@ -18,10 +18,10 @@ export function useInputSubtitle() {
   } = useTextInput();
 
   const { messages } = useChatHistory();
-  const { startMic, autoStartMicOn } = useVAD();
-  const { handleMicToggle, micOn } = useMicToggle();
+  // const { startMic, autoStartMicOn } = useVAD();
+  // const { handleMicToggle, micOn } = useMicToggle();
   const { aiState, setAiState } = useAiState();
-  const { interrupt } = useInterrupt();
+  // const { interrupt } = useInterrupt();
 
   const lastAIMessage = messages
     .filter((msg) => msg.role === 'ai')
@@ -30,12 +30,12 @@ export function useInputSubtitle() {
 
   const hasAIMessages = messages.some((msg) => msg.role === 'ai');
 
-  const handleInterrupt = () => {
-    interrupt();
-    if (autoStartMicOn) {
-      startMic();
-    }
-  };
+  // const handleInterrupt = () => {
+  //   interrupt();
+  //   if (autoStartMicOn) {
+  //     startMic();
+  //   }
+  // };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     handleChange({ target: { value: e.target.value } } as ChangeEvent<HTMLInputElement>);
@@ -52,12 +52,12 @@ export function useInputSubtitle() {
     handleKeyPress,
     handleCompositionStart,
     handleCompositionEnd,
-    handleInterrupt,
-    handleMicToggle,
+    // handleInterrupt,
+    // handleMicToggle,
     lastAIMessage,
     hasAIMessages,
     aiState,
-    micOn,
+    // micOn,
     handleSend,
   };
 }

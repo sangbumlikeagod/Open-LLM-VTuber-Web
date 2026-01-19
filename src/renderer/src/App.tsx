@@ -3,7 +3,8 @@
 import { Box, Flex, ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { useState, useEffect, useRef } from "react";
 // import Canvas from './components/canvas/canvas'; // Likely unused now
-import Sidebar from "./components/sidebar/sidebar";
+// import Sidebar from "./components/sidebar/sidebar";
+// import { VADProvider } from "./context/vad-context";
 import Footer from "./components/footer/footer";
 import { AiStateProvider } from "./context/ai-state-context";
 import { Live2DConfigProvider } from "./context/live2d-config-context";
@@ -11,16 +12,15 @@ import { SubtitleProvider } from "./context/subtitle-context";
 import { BgUrlProvider } from "./context/bgurl-context";
 import { layoutStyles } from "./layout";
 import WebSocketHandler from "./services/websocket-handler";
-import { CameraProvider } from "./context/camera-context";
+
 import { ChatHistoryProvider } from "./context/chat-history-context";
 import { CharacterConfigProvider } from "./context/character-config-context";
 import { Toaster } from "./components/ui/toaster";
-import { VADProvider } from "./context/vad-context";
 import { Live2D } from "./components/canvas/live2d";
 import TitleBar from "./components/electron/title-bar";
 import { InputSubtitle } from "./components/electron/input-subtitle";
 import { ProactiveSpeakProvider } from "./context/proactive-speak-context";
-import { ScreenCaptureProvider } from "./context/screen-capture-context";
+
 import { GroupProvider } from "./context/group-context";
 import { BrowserProvider } from "./context/browser-context";
 // eslint-disable-next-line import/no-extraneous-dependencies, import/newline-after-import
@@ -174,15 +174,17 @@ function AppWithGlobalStyles(): JSX.Element {
     <>
       {/* <CameraProvider>
       </CameraProvider> */}
+        {/* <ScreenCaptureProvider>
+        </ScreenCaptureProvider> */}
+                      {/* <VADProvider>
+                      </VADProvider> */}
 
-        <ScreenCaptureProvider>
           <CharacterConfigProvider>
             <ChatHistoryProvider>
               <AiStateProvider>
                 <ProactiveSpeakProvider>
                   <Live2DConfigProvider>
                     <SubtitleProvider>
-                      <VADProvider>
                         <BgUrlProvider>
                           <GroupProvider>
                             <BrowserProvider>
@@ -193,14 +195,12 @@ function AppWithGlobalStyles(): JSX.Element {
                             </BrowserProvider>
                           </GroupProvider>
                         </BgUrlProvider>
-                      </VADProvider>
                     </SubtitleProvider>
                   </Live2DConfigProvider>
                 </ProactiveSpeakProvider>
               </AiStateProvider>
             </ChatHistoryProvider>
           </CharacterConfigProvider>
-        </ScreenCaptureProvider>
     </>
   );
 }

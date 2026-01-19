@@ -18,7 +18,7 @@ import { CloseButton } from '@/components/ui/close-button';
 import { settingStyles } from './setting-styles';
 import General from './general';
 import Live2D from './live2d';
-import ASR from './asr';
+// import ASR from './asr';
 import TTS from './tts';
 import Agent from './agent';
 import About from './about';
@@ -74,9 +74,12 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
             onCancel={handleCancelCallback}
           />
         </Tabs.Content>
-        <Tabs.Content value="asr" {...settingStyles.settingUI.tabs.content}>
+        
+        {/* <Tabs.Content value="asr" {...settingStyles.settingUI.tabs.content}>
           <ASR onSave={handleSaveCallback} onCancel={handleCancelCallback} />
-        </Tabs.Content>
+        </Tabs.Content> */}
+
+
         <Tabs.Content value="tts" {...settingStyles.settingUI.tabs.content}>
           <TTS />
         </Tabs.Content>

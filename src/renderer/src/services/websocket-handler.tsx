@@ -15,7 +15,7 @@ import { useBgUrl } from '@/context/bgurl-context';
 import { useConfig } from '@/context/character-config-context';
 import { useChatHistory } from '@/context/chat-history-context';
 import { toaster } from '@/components/ui/toaster';
-import { useVAD } from '@/context/vad-context';
+// import { useVAD } from '@/context/vad-context';
 import { AiState, useAiState } from "@/context/ai-state-context";
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useGroup } from '@/context/group-context';
@@ -36,14 +36,14 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { confUid, setConfName, setConfUid, setConfigFiles } = useConfig();
   const [pendingModelInfo, setPendingModelInfo] = useState<ModelInfo | undefined>(undefined);
   const { setSelfUid, setGroupMembers, setIsOwner } = useGroup();
-  const { startMic, stopMic, autoStartMicOnConvEnd } = useVAD();
-  const autoStartMicOnConvEndRef = useRef(autoStartMicOnConvEnd);
+  // const { startMic, stopMic, autoStartMicOnConvEnd } = useVAD();
+  // const autoStartMicOnConvEndRef = useRef(autoStartMicOnConvEnd);
   const { interrupt } = useInterrupt();
   const { setBrowserViewData } = useBrowser();
 
-  useEffect(() => {
-    autoStartMicOnConvEndRef.current = autoStartMicOnConvEnd;
-  }, [autoStartMicOnConvEnd]);
+  // useEffect(() => {
+  //   autoStartMicOnConvEndRef.current = autoStartMicOnConvEnd;
+  // }, [autoStartMicOnConvEnd]);
 
   useEffect(() => {
     if (pendingModelInfo && confUid) {
@@ -58,14 +58,14 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
 
   const handleControlMessage = useCallback((controlText: string) => {
     switch (controlText) {
-      case 'start-mic':
-        console.log('Starting microphone...');
-        startMic();
-        break;
-      case 'stop-mic':
-        console.log('Stopping microphone...');
-        stopMic();
-        break;
+      // case 'start-mic':
+      //   console.log('Starting microphone...');
+      //   startMic();
+      //   break;
+      // case 'stop-mic':
+      //   console.log('Stopping microphone...');
+      //   stopMic();
+      //   break;
       case 'conversation-chain-start':
         setAiState('thinking-speaking');
         audioTaskQueue.clearQueue();
@@ -76,9 +76,9 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           setAiState((currentState: AiState) => {
             if (currentState === 'thinking-speaking') {
               // Auto start mic if enabled
-              if (autoStartMicOnConvEndRef.current) {
-                startMic();
-              }
+              // if (autoStartMicOnConvEndRef.current) {
+              //   startMic();
+              // }
               return 'idle';
             }
             return currentState;
@@ -89,7 +89,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       default:
         console.warn('Unknown control command:', controlText);
     }
-  }, [setAiState, clearResponse, setForceNewMessage, startMic, stopMic]);
+  }, [setAiState, clearResponse, setForceNewMessage]);
 
   const handleWebSocketMessage = useCallback((message: MessageEvent) => {
     console.log('Received message from server:', message);
@@ -289,7 +289,13 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       default:
         console.warn('Unknown message type:', message.type);
     }
-  }, [aiState, addAudioTask, appendHumanMessage, baseUrl, bgUrlContext, setAiState, setConfName, setConfUid, setConfigFiles, setCurrentHistoryUid, setHistoryList, setMessages, setModelInfo, setSubtitleText, startMic, stopMic, setSelfUid, setGroupMembers, setIsOwner, backendSynthComplete, setBackendSynthComplete, clearResponse, handleControlMessage, appendOrUpdateToolCallMessage, interrupt, setBrowserViewData, t]);
+  }, [aiState, addAudioTask, appendHumanMessage, baseUrl, bgUrlContext, setAiState, 
+    setConfName, setConfUid, setConfigFiles, setCurrentHistoryUid, setHistoryList, 
+    setMessages, setModelInfo, setSubtitleText, setSelfUid, setGroupMembers,
+    setIsOwner, backendSynthComplete, setBackendSynthComplete, clearResponse,
+    handleControlMessage, appendOrUpdateToolCallMessage, interrupt,
+    setBrowserViewData, t]
+  );
 
   useEffect(() => {
     wsService.connect(wsUrl);

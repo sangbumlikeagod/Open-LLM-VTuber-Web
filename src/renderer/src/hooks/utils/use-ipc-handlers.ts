@@ -1,13 +1,13 @@
 import { useEffect, useCallback } from "react";
 import { useInterrupt } from "@/components/canvas/live2d";
-import { useMicToggle } from "./use-mic-toggle";
+// import { useMicToggle } from "./use-mic-toggle";
 import { useLive2DConfig } from "@/context/live2d-config-context";
 import { useSwitchCharacter } from "@/hooks/utils/use-switch-character";
 import { useForceIgnoreMouse } from "@/hooks/utils/use-force-ignore-mouse";
 import { useMode } from "@/context/mode-context";
 
 export function useIpcHandlers() {
-  const { handleMicToggle } = useMicToggle();
+  // const { handleMicToggle } = useMicToggle();
   const { interrupt } = useInterrupt();
   const { modelInfo, setModelInfo } = useLive2DConfig();
   const { switchCharacter } = useSwitchCharacter();
@@ -15,9 +15,9 @@ export function useIpcHandlers() {
   const { mode } = useMode();
   const isPet = mode === 'pet';
 
-  const micToggleHandler = useCallback(() => {
-    handleMicToggle();
-  }, [handleMicToggle]);
+  // const micToggleHandler = useCallback(() => {
+  //   handleMicToggle();
+  // }, [handleMicToggle]);
 
   const interruptHandler = useCallback(() => {
     interrupt();
@@ -64,7 +64,7 @@ export function useIpcHandlers() {
     window.electron.ipcRenderer.removeAllListeners("toggle-force-ignore-mouse");
     window.electron.ipcRenderer.removeAllListeners("force-ignore-mouse-changed");
 
-    window.electron.ipcRenderer.on("mic-toggle", micToggleHandler);
+    // window.electron.ipcRenderer.on("mic-toggle", micToggleHandler);
     window.electron.ipcRenderer.on("interrupt", interruptHandler);
     window.electron.ipcRenderer.on(
       "toggle-scroll-to-resize",
@@ -91,7 +91,7 @@ export function useIpcHandlers() {
       window.electron?.ipcRenderer.removeAllListeners("force-ignore-mouse-changed");
     };
   }, [
-    micToggleHandler,
+    // micToggleHandler,
     interruptHandler,
     scrollToResizeHandler,
     switchCharacterHandler,

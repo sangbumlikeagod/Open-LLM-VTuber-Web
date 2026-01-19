@@ -31,8 +31,8 @@ import Subtitle from "./components/canvas/subtitle";
 import { ModeProvider, useMode } from "./context/mode-context";
 
 function AppContent(): JSX.Element {
-  const [showSidebar, setShowSidebar] = useState(true);
-  const [isFooterCollapsed, setIsFooterCollapsed] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [isFooterCollapsed, setIsFooterCollapsed] = useState(true);
   const { mode } = useMode();
   const isElectron = window.api !== undefined;
   const live2dContainerRef = useRef<HTMLDivElement>(null);
@@ -110,7 +110,8 @@ function AppContent(): JSX.Element {
           {isElectron && <TitleBar />}
           {/* Apply styles by spreading */}
           <Flex {...layoutStyles.appContainer}>
-            <Box
+            
+            {/* <Box
               {...layoutStyles.sidebar}
               {...(!showSidebar && { width: "24px" })}
             >
@@ -118,7 +119,8 @@ function AppContent(): JSX.Element {
                 isCollapsed={!showSidebar}
                 onToggle={() => setShowSidebar(!showSidebar)}
               />
-            </Box>
+            </Box> */}
+
             <Box {...layoutStyles.mainContent}>
               <Background />
               <Box position="absolute" top="20px" left="20px" zIndex={10}>

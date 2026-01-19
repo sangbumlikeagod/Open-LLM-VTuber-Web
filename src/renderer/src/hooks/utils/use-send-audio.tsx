@@ -4,7 +4,7 @@ import { useMediaCapture } from "@/hooks/utils/use-media-capture";
 
 export function useSendAudio() {
   const { sendMessage } = useWebSocket();
-  const { captureAllMedia } = useMediaCapture();
+  // const { captureAllMedia } = useMediaCapture();
 
   const sendAudioPartition = useCallback(
     async (audio: Float32Array) => {
@@ -22,10 +22,11 @@ export function useSendAudio() {
       }
 
       // Send end signal after all chunks
-      const images = await captureAllMedia();
-      sendMessage({ type: "mic-audio-end", images });
+      // const images = await captureAllMedia();
+      // sendMessage({ type: "mic-audio-end", images });
     },
-    [sendMessage, captureAllMedia],
+    [sendMessage],
+    // [sendMessage, captureAllMedia],
   );
 
   return {

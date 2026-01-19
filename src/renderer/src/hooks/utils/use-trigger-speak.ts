@@ -4,18 +4,19 @@ import { useMediaCapture } from './use-media-capture';
 
 export function useTriggerSpeak() {
   const { sendMessage } = useWebSocket();
-  const { captureAllMedia } = useMediaCapture();
+  // 미디어 데이터 보내는 부분 삭제 (메시지 보내는쪽은 남아있음)
+  // const { captureAllMedia } = useMediaCapture();
 
   const sendTriggerSignal = useCallback(
     async (actualIdleTime: number) => {
-      const images = await captureAllMedia();
+      // const images = await captureAllMedia();
       sendMessage({
         type: "ai-speak-signal",
         idle_time: actualIdleTime,
-        images,
+        undefined
       });
     },
-    [sendMessage, captureAllMedia],
+    [sendMessage],
   );
 
   return {

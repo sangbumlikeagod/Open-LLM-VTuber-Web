@@ -1,8 +1,6 @@
 import { useRef, useCallback } from 'react';
-import { useChatHistory } from '@/context/chat-history-context';
 
 export function useChatHistoryPanel() {
-  const { messages } = useChatHistory();
   const messageListRef = useRef<HTMLDivElement>(null);
 
   const handleMessageUpdate = useCallback(() => {
@@ -12,7 +10,6 @@ export function useChatHistoryPanel() {
   }, []);
 
   return {
-    messages,
     messageListRef,
     handleMessageUpdate,
   };

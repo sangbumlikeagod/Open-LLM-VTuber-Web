@@ -6,10 +6,8 @@ import {
 import { memo } from 'react';
 import { sidebarStyles } from './sidebar-styles';
 import SettingUI from './setting/setting-ui';
-import ChatHistoryPanel from './chat-history-panel';
+
 import BottomTab from './bottom-tab';
-import HistoryDrawer from './history-drawer';
-import { useSidebar } from '@/hooks/sidebar/use-sidebar';
 import GroupDrawer from './group-drawer';
 import { ModeType } from '@/context/mode-context';
 
@@ -94,12 +92,6 @@ const HeaderButtons = memo(({ onSettingsOpen, onNewHistory, setMode, currentMode
       </Button>
     </GroupDrawer>
 
-    <HistoryDrawer>
-      <Button>
-        <FiClock />
-      </Button>
-    </HistoryDrawer>
-
     <Button onClick={onNewHistory}>
       <FiPlus />
     </Button>
@@ -127,7 +119,7 @@ const SidebarContent = memo(({
         isElectron={isElectron}
       />
     </Box>
-    <ChatHistoryPanel />
+    {/* <ChatHistoryPanel /> */}
     <BottomTab />
   </Box>
 ));
@@ -136,37 +128,10 @@ SidebarContent.displayName = 'SidebarContent';
 
 // Main component
 function Sidebar({ isCollapsed = false, onToggle }: SidebarProps): JSX.Element {
-  const {
-    settingsOpen,
-    onSettingsOpen,
-    onSettingsClose,
-    createNewHistory,
-    setMode,
-    currentMode,
-    isElectron,
-  } = useSidebar();
 
   return (
     <Box {...sidebarStyles.sidebar.container(isCollapsed)}>
       <ToggleButton isCollapsed={isCollapsed} onToggle={onToggle} />
-
-      {!isCollapsed && !settingsOpen && (
-        <SidebarContent
-          onSettingsOpen={onSettingsOpen}
-          onNewHistory={createNewHistory}
-          setMode={setMode}
-          currentMode={currentMode}
-          isElectron={isElectron}
-        />
-      )}
-
-      {!isCollapsed && settingsOpen && (
-        <SettingUI
-          open={settingsOpen}
-          onClose={onSettingsClose}
-          onToggle={onToggle}
-        />
-      )}
     </Box>
   );
 }

@@ -13,7 +13,7 @@ import { BgUrlProvider } from "./context/bgurl-context";
 import { layoutStyles } from "./layout";
 import WebSocketHandler from "./services/websocket-handler";
 
-import { ChatHistoryProvider } from "./context/chat-history-context";
+
 import { CharacterConfigProvider } from "./context/character-config-context";
 import { Toaster } from "./components/ui/toaster";
 import { Live2D } from "./components/canvas/live2d";
@@ -176,11 +176,12 @@ function AppWithGlobalStyles(): JSX.Element {
       </CameraProvider> */}
         {/* <ScreenCaptureProvider>
         </ScreenCaptureProvider> */}
+            {/* <ChatHistoryProvider>
+            </ChatHistoryProvider> */}
                       {/* <VADProvider>
                       </VADProvider> */}
 
           <CharacterConfigProvider>
-            <ChatHistoryProvider>
               <AiStateProvider>
                 <ProactiveSpeakProvider>
                   <Live2DConfigProvider>
@@ -199,7 +200,6 @@ function AppWithGlobalStyles(): JSX.Element {
                   </Live2DConfigProvider>
                 </ProactiveSpeakProvider>
               </AiStateProvider>
-            </ChatHistoryProvider>
           </CharacterConfigProvider>
     </>
   );

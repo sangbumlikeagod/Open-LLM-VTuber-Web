@@ -13,7 +13,6 @@ import { audioTaskQueue } from '@/utils/task-queue';
 import { useAudioTask } from '@/components/canvas/live2d';
 import { useBgUrl } from '@/context/bgurl-context';
 import { useConfig } from '@/context/character-config-context';
-import { useChatHistory } from '@/context/chat-history-context';
 import { toaster } from '@/components/ui/toaster';
 // import { useVAD } from '@/context/vad-context';
 import { AiState, useAiState } from "@/context/ai-state-context";
@@ -30,7 +29,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { aiState, setAiState, backendSynthComplete, setBackendSynthComplete } = useAiState();
   const { setModelInfo } = useLive2DConfig();
   const { setSubtitleText } = useSubtitle();
-  const { clearResponse, setForceNewMessage, appendHumanMessage, appendOrUpdateToolCallMessage } = useChatHistory();
+
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useBgUrl();
   const { confUid, setConfName, setConfUid, setConfigFiles } = useConfig();
@@ -52,9 +51,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
     }
   }, [pendingModelInfo, setModelInfo, confUid]);
 
-  const {
-    setCurrentHistoryUid, setMessages, setHistoryList,
-  } = useChatHistory();
 
   const handleControlMessage = useCallback((controlText: string) => {
     switch (controlText) {
@@ -69,7 +65,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       case 'conversation-chain-start':
         setAiState('thinking-speaking');
         audioTaskQueue.clearQueue();
-        clearResponse();
         break;
       case 'conversation-chain-end':
         audioTaskQueue.addTask(() => new Promise<void>((resolve) => {
@@ -89,7 +84,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       default:
         console.warn('Unknown control command:', controlText);
     }
-  }, [setAiState, clearResponse, setForceNewMessage]);
+  }, [setAiState]);
 
   const handleWebSocketMessage = useCallback((message: MessageEvent) => {
     console.log('Received message from server:', message);
@@ -167,29 +162,16 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           });
         }
         break;
-      case 'history-data':
-        if (message.messages) {
-          setMessages(message.messages);
-        }
-        toaster.create({
-          title: t('notification.historyLoaded'),
-          type: 'success',
-          duration: 2000,
-        });
-        break;
       case 'new-history-created':
         setAiState('idle');
         setSubtitleText(t('notification.newConversation'));
         // No need to open mic here
         if (message.history_uid) {
-          setCurrentHistoryUid(message.history_uid);
-          setMessages([]);
           const newHistory: HistoryInfo = {
             uid: message.history_uid,
             latest_message: null,
             timestamp: new Date().toISOString(),
           };
-          setHistoryList((prev: HistoryInfo[]) => [newHistory, ...prev]);
           toaster.create({
             title: t('notification.newChatHistory'),
             type: 'success',
@@ -208,16 +190,13 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         break;
       case 'history-list':
         if (message.histories) {
-          setHistoryList(message.histories);
           if (message.histories.length > 0) {
-            setCurrentHistoryUid(message.histories[0].uid);
           }
         }
         break;
       case 'user-input-transcription':
         console.log('user-input-transcription: ', message.text);
         if (message.text) {
-          appendHumanMessage(message.text);
         }
         break;
       case 'error':
@@ -256,9 +235,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           });
         }
         break;
-      case 'force-new-message':
-        setForceNewMessage(true);
-        break;
       case 'interrupt-signal':
         // Handle forwarded interrupt
         interrupt(false); // do not send interrupt signal to server
@@ -271,17 +247,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
             setBrowserViewData(message.browser_view);
           }
 
-          appendOrUpdateToolCallMessage({
-            id: message.tool_id,
-            type: 'tool_call_status',
-            role: 'ai',
-            tool_id: message.tool_id,
-            tool_name: message.tool_name,
-            name: message.name,
-            status: message.status as ('running' | 'completed' | 'error'),
-            content: message.content || '',
-            timestamp: message.timestamp || new Date().toISOString(),
-          });
+          
         } else {
           console.warn('Received incomplete tool_call_status message:', message);
         }
@@ -289,11 +255,11 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       default:
         console.warn('Unknown message type:', message.type);
     }
-  }, [aiState, addAudioTask, appendHumanMessage, baseUrl, bgUrlContext, setAiState, 
-    setConfName, setConfUid, setConfigFiles, setCurrentHistoryUid, setHistoryList, 
-    setMessages, setModelInfo, setSubtitleText, setSelfUid, setGroupMembers,
-    setIsOwner, backendSynthComplete, setBackendSynthComplete, clearResponse,
-    handleControlMessage, appendOrUpdateToolCallMessage, interrupt,
+  }, [aiState, addAudioTask, baseUrl, bgUrlContext, setAiState, 
+    setConfName, setConfUid, setConfigFiles, 
+    setModelInfo, setSubtitleText, setSelfUid, setGroupMembers,
+    setIsOwner, backendSynthComplete, setBackendSynthComplete,
+    handleControlMessage, interrupt,
     setBrowserViewData, t]
   );
 

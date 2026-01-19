@@ -172,7 +172,9 @@ function App(): JSX.Element {
 function AppWithGlobalStyles(): JSX.Element {
   return (
     <>
-      <CameraProvider>
+      {/* <CameraProvider>
+      </CameraProvider> */}
+
         <ScreenCaptureProvider>
           <CharacterConfigProvider>
             <ChatHistoryProvider>
@@ -199,7 +201,6 @@ function AppWithGlobalStyles(): JSX.Element {
             </ChatHistoryProvider>
           </CharacterConfigProvider>
         </ScreenCaptureProvider>
-      </CameraProvider>
     </>
   );
 }

@@ -3,7 +3,6 @@ import { Tabs } from '@chakra-ui/react'
 import { FiCamera, FiMonitor, FiGlobe } from 'react-icons/fi'
 import { useTranslation } from 'react-i18next'
 import { sidebarStyles } from './sidebar-styles'
-import CameraPanel from './camera-panel'
 import ScreenPanel from './screen-panel'
 import BrowserPanel from './browser-panel'
 
@@ -31,10 +30,6 @@ function BottomTab(): JSX.Element {
         </Tabs.Trigger>
       </Tabs.List>
 
-      <Tabs.Content value="camera">
-        <CameraPanel />
-      </Tabs.Content>
-      
       <Tabs.Content value="screen">
         <ScreenPanel />
       </Tabs.Content>

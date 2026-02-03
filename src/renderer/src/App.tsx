@@ -10,9 +10,9 @@ import { AiStateProvider } from "./context/ai-state-context";
 import { Live2DConfigProvider } from "./context/live2d-config-context";
 import { SubtitleProvider } from "./context/subtitle-context";
 import { BgUrlProvider } from "./context/bgurl-context";
+import { AudioContextProvider } from "./context/audio_session_context";
 import { layoutStyles } from "./layout";
 import WebSocketHandler from "./services/websocket-handler";
-
 
 import { CharacterConfigProvider } from "./context/character-config-context";
 import { Toaster } from "./components/ui/toaster";
@@ -29,10 +29,12 @@ import Background from "./components/canvas/background";
 import WebSocketStatus from "./components/canvas/ws-status";
 import Subtitle from "./components/canvas/subtitle";
 import { ModeProvider, useMode } from "./context/mode-context";
+import { BrowserRouter, Routes } from "react-router";
 
 function AppContent(): JSX.Element {
   const [showSidebar, setShowSidebar] = useState(false);
   const [isFooterCollapsed, setIsFooterCollapsed] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(true);
   const { mode } = useMode();
   const isElectron = window.api !== undefined;
   const live2dContainerRef = useRef<HTMLDivElement>(null);
@@ -93,6 +95,40 @@ function AppContent(): JSX.Element {
 
   return (
     <>
+      {/* 첫 화면 탭 오버레이 */}
+      {/* {showOverlay && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          width="100vw"
+          height="100vh"
+          bg="rgba(0, 0, 0, 0.7)"
+          zIndex={9999}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          cursor="pointer"
+          onClick={() => setShowOverlay(false)}
+        >
+          <Box
+            color="white"
+            fontSize="2xl"
+            fontWeight="bold"
+            textAlign="center"
+            animation="pulse 2s infinite"
+            css={{
+              "@keyframes pulse": {
+                "0%, 100%": { opacity: 1 },
+                "50%": { opacity: 0.5 },
+              },
+            }}
+          >
+            화면을 탭하여 시작하세요
+          </Box>
+        </Box>
+      )} */}
+
       <Box
         ref={live2dContainerRef}
         // Apply styles conditionally based on mode
@@ -181,26 +217,31 @@ function AppWithGlobalStyles(): JSX.Element {
                       {/* <VADProvider>
                       </VADProvider> */}
 
+                          <AudioContextProvider>
           <CharacterConfigProvider>
               <AiStateProvider>
                 <ProactiveSpeakProvider>
                   <Live2DConfigProvider>
                     <SubtitleProvider>
                         <BgUrlProvider>
-                          <GroupProvider>
-                            <BrowserProvider>
-                              <WebSocketHandler>
-                                <Toaster />
-                                <AppContent />
-                              </WebSocketHandler>
-                            </BrowserProvider>
-                          </GroupProvider>
+                            <GroupProvider>
+                              <BrowserProvider>
+                                <BrowserRouter>
+                                    <WebSocketHandler>
+                                      <Toaster />
+                                      <AppContent />
+                                      <Routes />
+                                    </WebSocketHandler>
+                                </BrowserRouter>
+                              </BrowserProvider>
+                            </GroupProvider>
                         </BgUrlProvider>
                     </SubtitleProvider>
                   </Live2DConfigProvider>
                 </ProactiveSpeakProvider>
               </AiStateProvider>
           </CharacterConfigProvider>
+                          </AudioContextProvider>
     </>
   );
 }

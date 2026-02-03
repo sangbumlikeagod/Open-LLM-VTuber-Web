@@ -42,8 +42,10 @@ const BgUrlContext = createContext<BgUrlContextState | null>(null);
  */
 export function BgUrlProvider({ children }: { children: React.ReactNode }) {
   const { baseUrl } = useWebSocket();
-  const DEFAULT_BACKGROUND = `/Users/leoyu/sangbumlikeagod/VTUBER/Open-LLM-VTuber-Web/resources/icon.icns`;
+  // const DEFAULT_BACKGROUND = `/Users/leoyu/sangbumlikeagod/VTUBER/Open-LLM-VTuber-Web/resources/icon.icns`;
   // const DEFAULT_BACKGROUND = `${baseUrl}/bg/ceiling-window-room-night.jpeg`;
+  // const DEFAULT_BACKGROUND = `/background/image.png`;
+  const DEFAULT_BACKGROUND = `../../resources/background/normal.mp4`;
 
   // Local storage for persistent background URL
   const [backgroundUrl, setBackgroundUrl] = useLocalStorage<string>(

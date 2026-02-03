@@ -1,5 +1,5 @@
 import {
-  createContext, useContext, useState, useMemo,
+  createContext, useContext, useState, useMemo
 } from 'react';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useConfig } from '@/context/character-config-context';
@@ -87,12 +87,17 @@ interface Live2DConfigState {
 /**
  * Default values and constants
  */
+const baseText : string = '{"type":"set-model-and-conf","model_info":{"name":"mao_pro","description":"","url":"/live2d-models/mao_pro/runtime/mao_pro.model3.json","kScale":0.5,"initialXshift":0,"initialYshift":0,"kXOffset":1150,"idleMotionGroupName":"Idle","emotionMap":{"neutral":0,"anger":2,"disgust":2,"fear":1,"joy":3,"smirk":3,"sadness":1,"surprise":3},"tapMotions":{"HitAreaHead":{"":1},"HitAreaBody":{"":1}}},"conf_name":"mao_pro","conf_uid":"mao_pro_001","client_uid":"93173c76-000d-401f-875d-a40ec5925f31"}'
 const DEFAULT_CONFIG = {
   modelInfo: {
+    ... JSON.parse(baseText).model_info,
     scrollToResize: true,
   } as ModelInfo | undefined,
   isLoading: false,
 };
+
+console.log("DEFAULT_CONFIG.modelInfo", DEFAULT_CONFIG.modelInfo)
+console.log("DEFAULT_CONFIG.modelInfo", DEFAULT_CONFIG.modelInfo)
 
 /**
  * Create the Live2D configuration context
@@ -116,16 +121,36 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       filter: (value) => (value ? { ...value, url: "" } : value),
     },
   );
-
+  // setModelInfoState(DEFAULT_CONFIG.modelInfo)
   // const [modelInfo, setModelInfoState] = useState<ModelInfo | undefined>(DEFAULT_CONFIG.modelInfo);
-
+  const baseText : string = '{"type":"set-model-and-conf","model_info":{"name":"mao_pro","description":"","url":"/live2d-models/mao_pro/runtime/mao_pro.model3.json","kScale":0.5,"initialXshift":0,"initialYshift":0,"kXOffset":1150,"idleMotionGroupName":"Idle","emotionMap":{"neutral":0,"anger":2,"disgust":2,"fear":1,"joy":3,"smirk":3,"sadness":1,"surprise":3},"tapMotions":{"HitAreaHead":{"":1},"HitAreaBody":{"":1}}},"conf_name":"mao_pro","conf_uid":"mao_pro_001","client_uid":"93173c76-000d-401f-875d-a40ec5925f31"}'
   const setModelInfo = (info: ModelInfo | undefined) => {
-    if (!info?.url) {
-      setModelInfoState(undefined);
-      return;
-    }
-
     // Always use the scale defined in the incoming info object (from config)
+    if (!info?.url) {
+
+      info = JSON.parse(
+        baseText
+      )
+      
+      const finalScale = info ? Number(info.kScale || 0.5) * 2 : 1;
+      setModelInfoState(
+        {
+          ... JSON.parse(
+          baseText
+          ),
+          kScale: finalScale,
+          pointerInteractive:
+            info && "pointerInteractive" in info
+              ? info.pointerInteractive
+              : (modelInfo?.pointerInteractive ?? true),
+          scrollToResize:
+            info && "scrollToResize" in info
+              ? info.scrollToResize
+              : (modelInfo?.scrollToResize ?? true),
+            }
+      );
+      return
+    }
     const finalScale = Number(info.kScale || 0.5) * 2;
     console.log("Setting model info with default scale:", finalScale);
 
@@ -173,6 +198,5 @@ export function useLive2DConfig() {
 
   return context;
 }
-
 // Export the provider as default
 export default Live2DConfigProvider;

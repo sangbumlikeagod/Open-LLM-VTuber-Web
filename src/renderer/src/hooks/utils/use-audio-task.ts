@@ -5,6 +5,7 @@ import { useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAiState } from '@/context/ai-state-context';
 import { useSubtitle } from '@/context/subtitle-context';
+import { useAudioSession } from '@/context/audio_session_context'
 import { audioTaskQueue } from '@/utils/task-queue';
 import { audioManager } from '@/utils/audio-manager';
 import { toaster } from '@/components/ui/toaster';
@@ -35,6 +36,7 @@ export const useAudioTask = () => {
   const { setSubtitleText } = useSubtitle();
   const { sendMessage } = useWebSocket();
   const { setExpression } = useLive2DExpression();
+  const { consumeNextAudio, registerAddAudioTask } = useAudioSession();
 
   // State refs to avoid stale closures
   const stateRef = useRef({
@@ -74,42 +76,50 @@ export const useAudioTask = () => {
 
     const { audioBase64, displayText, expressions, forwarded } = options;
 
-    // Update display text
+    // // Update display text
     if (displayText) {
+      console.log(`given Text ${displayText.text}`)
       if (audioBase64) {
         updateSubtitle(displayText.text);
       }
-      if (!forwarded) {
-        sendMessage({
-          type: "audio-play-start",
-          display_text: displayText,
-          forwarded: true,
-        });
-      }
     }
+    //   if (!forwarded) {
+    //     sendMessage({
+    //       type: "audio-play-start",
+    //       display_text: displayText,
+    //       forwarded: true,
+    //     });
+    //   }
+    // }
+    // console.log("hello")
 
     try {
       // Process audio if available
       if (audioBase64) {
         const audioDataUrl = `data:audio/wav;base64,${audioBase64}`;
 
-        // Get Live2D manager and model
-        const live2dManager = (window as any).getLive2DManager?.();
-        if (!live2dManager) {
-          console.error('Live2D manager not found');
-          resolve();
-          return;
-        }
 
-        const model = live2dManager.getModel(0);
-        if (!model) {
-          console.error('Live2D model not found at index 0');
-          resolve();
-          return;
-        }
+
+
+        //TODO 모델 관련된부분을 채우던 제거하던 해야함
+        // Get Live2D manager and model
+        // const live2dManager = (window as any).getLive2DManager?.();
+        // if (!live2dManager) {
+        //   console.error('Live2D manager not found');
+        //   resolve();
+        //   return;
+        // }
+
+        const model = null
+        // const model = live2dManager.getModel(0);
+        // if (!model) {
+        //   console.error('Live2D model not found at index 0');
+        //   resolve();
+        //   return;
+        // }
         console.log('Found model for audio playback');
 
-        if (!model._wavFileHandler) {
+        if (!model || !model._wavFileHandler) {
           console.warn('Model does not have _wavFileHandler for lip sync');
         } else {
           console.log('Model has _wavFileHandler available');
@@ -126,7 +136,7 @@ export const useAudioTask = () => {
         }
 
         // Start talk motion
-        if (LAppDefine && LAppDefine.PriorityNormal) {
+        if (model !== null && LAppDefine && LAppDefine.PriorityNormal) {
           console.log("Starting random 'Talk' motion");
           model.startRandomMotion(
             "Talk",
@@ -137,12 +147,17 @@ export const useAudioTask = () => {
         }
 
         // Setup audio element
-        const audio = new Audio(audioDataUrl);
-        
+        const audio = new Audio(
+          audioDataUrl,
+        );
+        audio.controls = true
+        audio.autoplay = true
+
+                
         // Register with global audio manager IMMEDIATELY after creating audio
         audioManager.setCurrentAudio(audio, model);
         let isFinished = false;
-
+        console.log('audio 재생 시작')
         const cleanup = () => {
           audioManager.clearCurrentAudio(audio);
           if (!isFinished) {
@@ -168,32 +183,39 @@ export const useAudioTask = () => {
             cleanup();
           });
 
+
+          //TODO 립싱크 모델과 비교하기 위해서 사용
           // Setup lip sync
-          if (model._wavFileHandler) {
-            if (!model._wavFileHandler._initialized) {
-              console.log('Applying enhanced lip sync');
-              model._wavFileHandler._initialized = true;
+          // if (model._wavFileHandler) {
+          //   if (!model._wavFileHandler._initialized) {
+          //     console.log('Applying enhanced lip sync');
+          //     model._wavFileHandler._initialized = true;
 
-              const originalUpdate = model._wavFileHandler.update.bind(model._wavFileHandler);
-              model._wavFileHandler.update = function (deltaTimeSeconds: number) {
-                const result = originalUpdate(deltaTimeSeconds);
-                // @ts-ignore
-                this._lastRms = Math.min(2.0, this._lastRms * lipSyncScale);
-                return result;
-              };
-            }
+          //     const originalUpdate = model._wavFileHandler.update.bind(model._wavFileHandler);
+          //     model._wavFileHandler.update = function (deltaTimeSeconds: number) {
+          //       const result = originalUpdate(deltaTimeSeconds);
+          //       // @ts-ignore
+          //       this._lastRms = Math.min(2.0, this._lastRms * lipSyncScale);
+          //       return result;
+          //     };
+          //   }
 
-            if (audioManager.hasCurrentAudio()) {
-              model._wavFileHandler.start(audioDataUrl);
-            } else {
-              console.warn('WavFileHandler start skipped - audio was stopped');
-            }
-          }
+          //   if (audioManager.hasCurrentAudio()) {
+          //     model._wavFileHandler.start(audioDataUrl);
+          //   } else {
+          //     console.warn('WavFileHandler start skipped - audio was stopped');
+          //   }
+          // }
         });
 
         audio.addEventListener('ended', () => {
           console.log("Audio playback completed");
+          
+          // 새로운 애를 받아서 있으면 실행한다
+
+          consumeNextAudio()
           cleanup();
+
         });
 
         audio.addEventListener('error', (error) => {
@@ -223,8 +245,8 @@ export const useAudioTask = () => {
     const handleComplete = async () => {
       await audioTaskQueue.waitForCompletion();
       if (isMounted && backendSynthComplete) {
-        stopCurrentAudioAndLipSync();
-        sendMessage({ type: "frontend-playback-complete" });
+        // stopCurrentAudioAndLipSync();
+        // sendMessage({ type: "frontend-playback-complete" });
         setBackendSynthComplete(false);
       }
     };
@@ -239,9 +261,9 @@ export const useAudioTask = () => {
   /**
    * Add a new audio task to the queue
    */
-  const addAudioTask = async (options: AudioTaskOptions) => {
+  const addAudioTask = useCallback(async (options: AudioTaskOptions) => {
     const { aiState: currentState } = stateRef.current;
-
+    // console.log("AddAUdioTask")
     if (currentState === 'interrupted') {
       console.log('Skipping audio task due to interrupted state');
       return;
@@ -249,7 +271,12 @@ export const useAudioTask = () => {
 
     console.log(`Adding audio task ${options.displayText?.text} to queue`);
     audioTaskQueue.addTask(() => handleAudioPlayback(options));
-  };
+  }, []);
+
+  // AudioContext에 addAudioTask 함수 등록
+  useEffect(() => {
+    registerAddAudioTask(addAudioTask);
+  }, [registerAddAudioTask, addAudioTask]);
 
   return {
     addAudioTask,

@@ -2,10 +2,10 @@
 import { app, ipcMain, globalShortcut, desktopCapturer } from "electron";
 import { electronApp, optimizer } from "@electron-toolkit/utils";
 import { WindowManager } from "./window-manager";
-import { MenuManager } from "./menu-manager";
+// import { MenuManager } from "./menu-manager";
 
 let windowManager: WindowManager;
-let menuManager: MenuManager;
+// let menuManager: MenuManager;
 let isQuitting = false;
 
 function setupIPC(): void {
@@ -22,11 +22,11 @@ function setupIPC(): void {
     event.returnValue = windowManager.getCurrentMode();
   });
 
-  ipcMain.on("pre-mode-changed", (_event, newMode) => {
-    if (newMode === 'window' || newMode === 'pet') {
-      menuManager.setMode(newMode);
-    }
-  });
+  // ipcMain.on("pre-mode-changed", (_event, newMode) => {
+  //   if (newMode === 'window' || newMode === 'pet') {
+  //     menuManager.setMode(newMode);
+  //   }
+  // });
 
   ipcMain.on("window-minimize", () => {
     windowManager.getWindow()?.minimize();
@@ -77,7 +77,7 @@ app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.electron");
 
   windowManager = new WindowManager();
-  menuManager = new MenuManager((mode) => windowManager.setWindowMode(mode));
+  // menuManager = new MenuManager((mode) => windowManager.setWindowMode(mode));
 
   const window = windowManager.createWindow({
     titleBarOverlay: {
@@ -86,7 +86,7 @@ app.whenReady().then(() => {
       height: 30,
     },
   });
-  menuManager.createTray();
+  // menuManager.createTray();
 
   window.on("close", (event) => {
     if (!isQuitting) {
@@ -141,6 +141,6 @@ app.on("window-all-closed", () => {
 
 app.on("before-quit", () => {
   isQuitting = true;
-  menuManager.destroy();
+  // menuManager.destroy();
   globalShortcut.unregisterAll();
 });
